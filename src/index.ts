@@ -1,7 +1,7 @@
 /**
  * BaseN (Node.js)
  *
- * @version 1.0.2
+ * @version 1.0.1
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
