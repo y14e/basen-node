@@ -1,7 +1,7 @@
 /**
  * BaseN (Node.js)
  *
- * @version 1.0.3
+ * @version 1.0.4
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -24,8 +24,8 @@ type Data = string | Buffer;
 // Constants
 // -----------------------------------------------------------------------------
 
-const BASE36_CHARS = '0123456789abcdefghijklmnopqrstuvwxyz';
-const BASE62_CHARS =
+const BASE36_ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyz';
+const BASE62_ALPHABET =
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 const DEFAULT_LENGTH = 8;
 
@@ -37,29 +37,33 @@ export function generateBase36Hash(
   data: Data = '',
   length = DEFAULT_LENGTH,
 ): string {
-  return generateBaseNHash(BASE36_CHARS, data, length);
+  return generateBaseNHash(BASE36_ALPHABET, data, length);
 }
 
 export function generateBase36Random(length = DEFAULT_LENGTH): string {
-  return generateBaseNRandom(BASE36_CHARS, length);
+  return generateBaseNRandom(BASE36_ALPHABET, length);
 }
 
 export function generateBase62Hash(
   data: Data = '',
   length = DEFAULT_LENGTH,
 ): string {
-  return generateBaseNHash(BASE62_CHARS, data, length);
+  return generateBaseNHash(BASE62_ALPHABET, data, length);
 }
 
 export function generateBase62Random(length = DEFAULT_LENGTH): string {
-  return generateBaseNRandom(BASE62_CHARS, length);
+  return generateBaseNRandom(BASE62_ALPHABET, length);
 }
 
 // -----------------------------------------------------------------------------
 // Core
 // -----------------------------------------------------------------------------
 
-function generateBaseNHash(chars: string, data: Data, length: number): string {
+function generateBaseNHash(
+  alphabet: string,
+  data: Data,
+  length: number,
+): string {
   if (typeof data !== 'string' && !Buffer.isBuffer(data)) {
     console.warn('Invalid data. Fallback: empty string.');
     data = '';
@@ -68,24 +72,24 @@ function generateBaseNHash(chars: string, data: Data, length: number): string {
   length = clamp(length);
   let result = '';
   let n = BigInt(`0x${createHash('sha256').update(data).digest('hex')}`);
-  const base = BigInt(chars.length);
+  const base = BigInt(alphabet.length);
 
   while (result.length < length) {
-    result = chars[Number(n % base)] + result;
+    result = alphabet[Number(n % base)] + result;
     n /= base;
   }
 
   return result;
 }
 
-function generateBaseNRandom(chars: string, length: number): string {
+function generateBaseNRandom(alphabet: string, length: number): string {
   length = clamp(length);
   let result = '';
   const randoms = crypto.getRandomValues(new Uint8Array(length));
-  const base = chars.length;
+  const base = alphabet.length;
 
   for (let i = 0; i < length; i++) {
-    result += chars[(randoms[i] ?? 0) % base];
+    result += alphabet[(randoms[i] ?? 0) % base];
   }
 
   return result;
