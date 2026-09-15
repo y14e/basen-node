@@ -64,10 +64,6 @@ function generateBaseNHash(
   data: Data,
   length: number,
 ): string {
-  if (!alphabet.length) {
-    console.warn('Invalid alphabet.');
-  }
-
   if (typeof data !== 'string' && !Buffer.isBuffer(data)) {
     console.warn('Invalid data. Fallback: empty string.');
     data = '';
