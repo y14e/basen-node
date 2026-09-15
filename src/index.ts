@@ -1,7 +1,7 @@
 /**
  * BaseN (Node.js)
  *
- * @version 1.0.4
+ * @version 1.0.5
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -64,35 +64,34 @@ function generateBaseNHash(
   data: Data,
   length: number,
 ): string {
+  if (!alphabet.length) {
+    console.warn('Invalid alphabet.');
+  }
+
   if (typeof data !== 'string' && !Buffer.isBuffer(data)) {
     console.warn('Invalid data. Fallback: empty string.');
     data = '';
   }
 
   length = clamp(length);
-  let result = '';
-  let n = BigInt(`0x${createHash('sha256').update(data).digest('hex')}`);
+  const chars: string[] = [];
+  let n = BigInt(`0x${createHash('sha512').update(data).digest('hex')}`);
   const base = BigInt(alphabet.length);
 
-  while (result.length < length) {
-    result = alphabet[Number(n % base)] + result;
+  while (chars.length < length) {
+    chars.unshift(alphabet[Number(n % base)] ?? '');
     n /= base;
   }
 
-  return result;
+  return chars.join('');
 }
 
 function generateBaseNRandom(alphabet: string, length: number): string {
   length = clamp(length);
-  let result = '';
-  const randoms = crypto.getRandomValues(new Uint8Array(length));
   const base = alphabet.length;
-
-  for (let i = 0; i < length; i++) {
-    result += alphabet[(randoms[i] ?? 0) % base];
-  }
-
-  return result;
+  return crypto
+    .getRandomValues(new Uint8Array(length))
+    .reduce((a, b) => a + alphabet[b % base], '');
 }
 
 // -----------------------------------------------------------------------------
